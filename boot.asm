@@ -12,20 +12,25 @@ times 33 db 0   ; Creates 33 bytes after the short jump
 start:
     jmp 0x7C0:step2 ; Specifies the segment 0x7C0 so that the code segment register gets replaced by 0x7C0
 
-; Handles interrupt 0
-handle_zero:
-    mov ah, 0eh
-    mov al, 'A'
-    mov bx, 0x00
-    int 0x10
-    iret
+; DISK - READ SECTOR(S) INTO MEMORY
+; https://www.ctyme.com/intr/rb-0607.htm
+; AH = 02h
+; AL = number of sectors to read (must be nonzero)
+; CH = low eight bits of cylinder number
+; CL = sector number 1-63 (bits 0-5)
+; high two bits of cylinder (bits 6-7, hard disk only)
+; DH = head number
+; DL = drive number (bit 7 set for hard disk) - Already set for us by the BIOS
+; ES:BX -> data buffer
 
-handle_one:
-    mov ah, 0eh
-    mov al, 'V'
-    mov bx, 0x00
-    int 0x10
-    iret
+; Return:
+; CF set on error
+; if AH = 11h (corrected ECC error), AL = burst length
+; CF clear if successful
+; AH = status (see #00234)
+; AL = number of sectors transferred (only valid if CF set for some
+; BIOSes)
+
 
 ; Prints the character 'A' to the screen
 step2:
@@ -46,21 +51,22 @@ step2:
     mov sp, 0x7C00      ; Stack pointer
     sti                 ; Enable interrupts
 
-    ; Each entry in the interrupt table takes up 4 bytes
-    ; 2 bytes for offset and 2 bytes for segment
-    mov word[ss:0x00], handle_zero  ; Offset. If we don't do stack segment, it'll do the data segment. We want to point to the very first byte in RAM
-    mov word[ss:0x02], 0x7C0        ; Segment
+    mov ah, 2   ; Read sector command
+    mov al, 1   ; One sector to read
+    mov ch, 0   ; Cylinder low eight bits
+    mov cl, 2   ; Read sector 2
+    mov dh, 0   ; Head number
+    mov bx, buffer
+    int 0x13    ; Invoke the read command
+    jc error    ; If carry flag is set, jump to error
 
-    mov word[ss:0x04], handle_one
-    mov word[ss:0x06], 0x7C0
-    
-    ; Divide by 0 interrupt -> handle_zero
-    mov ax, 0x00
-    div ax
+    mov si, buffer
+    call print
 
-    int 1
+    jmp $
 
-    mov si, message
+error:
+    mov si, error_message
     call print
     jmp $               ; Keep jumping to itself
 
@@ -68,7 +74,7 @@ print:
     mov bx, 0
 .loop:
     lodsb       ; Load the character that the si register is pointing to and load it to the al register and increment the si register
-    cmp al, 0
+    cmp al, 0   ; Checks for null terminator
     je .done    ; If equal to 0, jump to done
     call print_char
     jmp .loop
@@ -80,7 +86,9 @@ print_char:
     int 0x10    ; Calling the bios video interrupt - Teletype Output
     ret
 
-message: db 'Hello World!', 0
+error_message: db 'Failed to load sector', 0
 
 times 510-($ - $$)db 0  ; Fill at least 510 bytes of data
 dw 0xAA55   ; Intel machines are little indian so the bytes get flipped when working with words. So it becomes '55AA'
+
+buffer:

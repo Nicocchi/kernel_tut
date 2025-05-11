@@ -7,7 +7,7 @@
 ### Build
 
 #### Bootloader
-```nasm -f bin ./boot.asm -o ./boot.bin```
+```make```
 
 ### Run
-qemu-system-x86_64 -hda ./boot.bin
+```make run```
