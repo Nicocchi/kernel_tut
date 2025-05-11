@@ -12,6 +12,21 @@ times 33 db 0   ; Creates 33 bytes after the short jump
 start:
     jmp 0x7C0:step2 ; Specifies the segment 0x7C0 so that the code segment register gets replaced by 0x7C0
 
+; Handles interrupt 0
+handle_zero:
+    mov ah, 0eh
+    mov al, 'A'
+    mov bx, 0x00
+    int 0x10
+    iret
+
+handle_one:
+    mov ah, 0eh
+    mov al, 'V'
+    mov bx, 0x00
+    int 0x10
+    iret
+
 ; Prints the character 'A' to the screen
 step2:
     cli                 ; Clear interrupts
@@ -30,6 +45,20 @@ step2:
     mov ss, ax          ; Set the stack segment now to 0
     mov sp, 0x7C00      ; Stack pointer
     sti                 ; Enable interrupts
+
+    ; Each entry in the interrupt table takes up 4 bytes
+    ; 2 bytes for offset and 2 bytes for segment
+    mov word[ss:0x00], handle_zero  ; Offset. If we don't do stack segment, it'll do the data segment. We want to point to the very first byte in RAM
+    mov word[ss:0x02], 0x7C0        ; Segment
+
+    mov word[ss:0x04], handle_one
+    mov word[ss:0x06], 0x7C0
+    
+    ; Divide by 0 interrupt -> handle_zero
+    mov ax, 0x00
+    div ax
+
+    int 1
 
     mov si, message
     call print
