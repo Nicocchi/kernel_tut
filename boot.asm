@@ -1,11 +1,29 @@
-ORG 0x7C00  ; This is where the bios loads the bootloader
+ORG 0
 BITS 16     ; Use 16bit architecture. Will make sure that the assembler assembles instructions in 16bit code
 
+jmp 0x7C0:start ; Makes the code segment 0x7C0
 ; Prints the character 'A' to the screen
 start:
+    cli                 ; Clear interrupts
+    
+    ; Segment registers
+    ; Since we are setting origin to 0, we are moving the segment registers ourselves to set to 0x7C00
+    ; If we don't set these ourselves, and relied on the bios to set them for us, it might set them to
+    ; 0x7C0 or might set it to 0 and assume the origin is 0x7C00. We don't know what the registers will be
+    ; when we load them.
+    mov ax, 0x7C0
+    mov ds, ax
+    mov es, ax
+
+    ; Stack segment
+    mov ax, 0x00
+    mov ss, ax          ; Set the stack segment now to 0
+    mov sp, 0x7C00      ; Stack pointer
+    sti                 ; Enable interrupts
+
     mov si, message
     call print
-    jmp $   ; Keep jumping to itself
+    jmp $               ; Keep jumping to itself
 
 print:
     mov bx, 0
