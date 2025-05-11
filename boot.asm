@@ -1,9 +1,19 @@
 ORG 0
 BITS 16     ; Use 16bit architecture. Will make sure that the assembler assembles instructions in 16bit code
 
-jmp 0x7C0:start ; Makes the code segment 0x7C0
-; Prints the character 'A' to the screen
+_start:
+    jmp short start
+    nop ; Required by the BIOS Parameter Block
+
+; Fake BIOS Parameter Block
+times 33 db 0   ; Creates 33 bytes after the short jump
+
+
 start:
+    jmp 0x7C0:step2 ; Specifies the segment 0x7C0 so that the code segment register gets replaced by 0x7C0
+
+; Prints the character 'A' to the screen
+step2:
     cli                 ; Clear interrupts
     
     ; Segment registers
@@ -41,7 +51,7 @@ print_char:
     int 0x10    ; Calling the bios video interrupt - Teletype Output
     ret
 
-message: db 'Hello World!', 0   ; ,0 is a null terminator
+message: db 'Hello World!', 0
 
 times 510-($ - $$)db 0  ; Fill at least 510 bytes of data
 dw 0xAA55   ; Intel machines are little indian so the bytes get flipped when working with words. So it becomes '55AA'
