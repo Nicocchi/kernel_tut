@@ -7,3 +7,4 @@ run:
 clean:
 	rm -rf ./bin/*
 	rm -rf ./build/*
+	rm -rf ./toolchain/*
