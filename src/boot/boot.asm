@@ -82,6 +82,11 @@ load32:
     mov ebp, 0x00200000     ; Set the base pointer to point to 0x00200000
     mov esp, ebp            ; Set the stack pointer to the base pointer - Setting further into memory
 
+    ; Enable the A20 line
+    in al, 0x92
+    or al, 2
+    out 0x92, al
+
     jmp $
 
 times 510-($ - $$)db 0  ; Fill at least 510 bytes of data

@@ -1,8 +1,9 @@
 all:
-	nasm -f bin ./boot.asm -o ./boot.bin
-	dd if=./test.txt >> ./boot.bin
-	# Writes one sector after message and pipe it into the binary
-	dd if=/dev/zero bs=512 count=1 >> ./boot.bin
+	nasm -f bin ./src/boot/boot.asm -o ./bin/boot.bin
 
 run:
-	qemu-system-x86_64 -hda ./boot.bin
+	qemu-system-x86_64 -hda ./bin/boot.bin
+
+clean:
+	rm -rf ./bin/*
+	rm -rf ./build/*
