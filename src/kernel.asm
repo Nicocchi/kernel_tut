@@ -1,10 +1,11 @@
 [BITS 32]
 
 global _start
+
 extern kernel_main
 
-CODE_SEG equ 0x08
-DATA_SEG equ 0x10
+CODE_SEG equ 0x08   ; Code Selector
+DATA_SEG equ 0x10   ; Data Selector
 
 _start:
     ; Load data registers
