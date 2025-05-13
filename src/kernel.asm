@@ -1,4 +1,5 @@
 [BITS 32]
+
 global _start
 
 CODE_SEG equ 0x08
@@ -21,3 +22,5 @@ _start:
     out 0x92, al
 
     jmp $
+
+times 512-($ - $$)db 0      ; Fixes any alignment issues caused by the kernel.asm. 512 % 16 aligns into 16 perfectly
