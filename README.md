@@ -26,8 +26,18 @@ To setup the cross-compiler, run the `toolchain.sh` script from the main directo
 * [NASM](https://github.com/netwide-assembler/nasm)
 * [QEMU](https://github.com/qemu/qemu) Debugging and running the kernel
 
-#### Bootloader
-```make```
+Entering `make` in the terminal will start the building process for **both the bootloader and kernel** and output it to the final binary **pandora.bin**. If you want to build each separately, use the commands below in the following order:
 
-### Run
-```make run```
+#### Bootloader
+`make bootloader`
+
+#### Kernel
+`make kernel`
+
+#### Disk
+`make write`
+
+*Note: The bootloader must be built first before the kernel and the disk must be done last.*
+
+## Running the kernel
+The kernel will be outputted into **pandora.bin**. You can either use the make command `make run` to start **qemu** with the binary file or manually run **qemu** with `qemu-system-x86_64 -hda /path/to/os.bin` replacing `/path/to/os.bin` with the path and name of the final binary.

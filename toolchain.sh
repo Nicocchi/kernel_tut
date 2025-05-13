@@ -74,6 +74,14 @@ function gcc () {
     echo " "
 }
 
+function cleanup () {
+    echo "--> Cleaning Up"
+    echo " "
+    echo " "
+    rm -rf binutils-$BINUTILS_VER/
+    rm -rf $BINUTILS_BUILD/
+}
+
 # Check whether or not we have a compiled gcc compiler
 if ! test -f $TARGET/bin/$TARGET-gcc; then
     binutils

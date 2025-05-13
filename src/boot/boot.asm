@@ -70,24 +70,68 @@ gdt_descriptor:
     dw gdt_end - gdt_start - 1  ; Gives the size of the descriptor
     dd gdt_start                ; Offset
 
+; Load kernel into memory and jump to it
 [BITS 32]
 load32:
-    ; Load data registers
-    mov ax, DATA_SEG
-    mov ds, ax
-    mov es, ax
-    mov fs, ax
-    mov gs, ax
-    mov ss, ax
-    mov ebp, 0x00200000     ; Set the base pointer to point to 0x00200000
-    mov esp, ebp            ; Set the stack pointer to the base pointer - Setting further into memory
+    mov eax, 1
+    mov ecx, 100
+    mov edi, 0x0100000  ; 1M in memory
+    call ata_lba_read
+    jmp CODE_SEG:0x0100000
 
-    ; Enable the A20 line
-    in al, 0x92
-    or al, 2
-    out 0x92, al
+ata_lba_read:
+    mov ebx, eax    ; Backup the LBA
+    ; Send the highest 8 bits of the LBA to the hard disk controller
+    shr eax, 24     ; Shift the reg 24 bits to the right, eax will then contain the highest 8 bits
+    or eax, 0xE0    ; Selects the master drive
+    mov dx, 0x1F6   ; Port that the bits need to be written to
+    out dx, al
+    
+    ; Send the total sectors to read
+    mov eax, ecx
+    mov dx, 0x1F2
+    out dx, al
 
-    jmp $
+    ; Sending more bits of the LBA
+    mov eax, ebx
+    mov dx, 0x1F3
+    out dx, al
+
+    mov dx, 0x1F4
+    mov eax, ebx    ; Restore the backup LBA
+    shr eax, 8
+    out dx, al
+
+    ; Send upper 16 bits of the LBA
+    mov dx, 0x1F5
+    mov eax, ebx
+    shr eax, 16
+    out dx, al
+
+    mov dx, 0x1F7
+    mov al, 0x20
+    out dx, al
+
+; Read all sectors into memory
+.next_sector:
+    push ecx
+
+; Checking if there is a need to read.
+; There is a delay sometimes with the controller, and even given the instructions,
+; it might not be in a state that is ready to read yet, so keep checking until ready
+.try_again:
+    mov dx, 0x1F7
+    in al, dx
+    test al, 8
+    jz .try_again       ; If fails, try again
+
+    ; Read 256 words at a time
+    mov ecx, 256
+    mov dx, 0x1F0
+    rep insw
+    pop ecx
+    loop .next_sector   ; Read next sector
+    ret
 
 times 510-($ - $$)db 0  ; Fill at least 510 bytes of data
 dw 0xAA55   ; Intel machines are little indian so the bytes get flipped when working with words. So it becomes '55AA'
