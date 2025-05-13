@@ -6,10 +6,12 @@ TARGET := pandora
 
 CC_NAME := i686-elf
 TARGET_ASM := nasm
-TARGET_CC := $(abspath toolchain/$(CC_NAME)/$(BIN_DIR)/$(CC_NAME)-gcc)
-TARGET_LD := $(abspath toolchain/$(CC_NAME)/$(BIN_DIR)/$(CC_NAME)-ld)
+TARGET_CC := toolchain/$(CC_NAME)/$(BIN_DIR)/$(CC_NAME)-gcc
+TARGET_LD := toolchain/$(CC_NAME)/$(BIN_DIR)/$(CC_NAME)-ld
+TARGET_CC_FLAGS := -g -ffreestanding -falign-jumps -falign-functions -falign-labels -falign-loops -fstrength-reduce -fomit-frame-pointer -finline-functions -Wno-unused-function -fno-builtin -Werror -Wno-unused-label -Wno-cpp -Wno-unused-parameter -nostdlib -nostartfiles -nodefaultlibs -Wall -O0 -Iinc
 
-SRC_FILES = ./build/kernel.asm.o
+BUILD_FILES := $(BUILD_DIR)/kernel.asm.o $(BUILD_DIR)/kernel.o
+INCLUDES := -I./$(SRC_DIR)
 
 all: clean bootloader kernel write
 	
@@ -23,15 +25,19 @@ bootloader:
 	@printf "\e[0;32m\033[1m\n Assembling bootloader... \n\n\033[0m\e[0;37m"
 	$(TARGET_ASM) -f bin -g $(SRC_DIR)/boot/boot.asm -o $(BIN_DIR)/boot.bin
 
-kernel: $(SRC_DIR)/kernel.asm
+kernel:
 	@printf "\e[0;32m\033[1m\n Assembling kernel... \n\n\033[0m\e[0;37m"
 	$(TARGET_ASM) -f elf -g $(SRC_DIR)/kernel.asm -o $(BUILD_DIR)/kernel.asm.o
+	@printf "\n"
+	$(TARGET_CC) $(INCLUDES) $(TARGET_CC_FLAGS) -std=gnu99 -c $(SRC_DIR)/kernel.c -o $(BUILD_DIR)/kernel.o
 	
 	@printf "\e[0;32m\033[1m\n Linking kernel assembly... \n\n\033[0m\e[0;37m"
-	$(TARGET_LD) -g -relocatable $(SRC_FILES) -o $(BUILD_DIR)/kernelfull.o
+	$(TARGET_LD) -g -relocatable $(BUILD_FILES) -o $(BUILD_DIR)/kernelfull.o
 
 	@printf "\e[0;32m\033[1m\n Compiling kernel... \n\n\033[0m\e[0;37m"
-	$(TARGET_CC) -T $(SRC_DIR)/linker.ld -o $(BIN_DIR)/kernel.bin -ffreestanding -O0 -nostdlib $(BUILD_DIR)/kernelfull.o
+	$(TARGET_CC) $(TARGET_CC_FLAGS) -T $(SRC_DIR)/linker.ld -o $(BIN_DIR)/kernel.bin -ffreestanding -O0 -nostdlib $(BUILD_DIR)/kernelfull.o
+
+
 
 run:
 	@printf "\e[0;32m\033[1m\n Running ${TARGET}.bin... \n\n\033[0m\e[0;37m"
