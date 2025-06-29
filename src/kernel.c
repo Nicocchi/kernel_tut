@@ -74,10 +74,9 @@ void print(const char* str)
 void kernel_main()
 {
     terminal_initialize();
-    print("Nico Nico Nii!\nAnata no heart Nico Nico Nii!");
+    print("Nico Nico Nii!\nAnata no heart Nico Nico Nii!\n");
 
     // Initialize the IDT
     idt_init();
     
-    outb(0x60, 0xff);
 }
