@@ -10,7 +10,7 @@ TARGET_CC := toolchain/$(CC_NAME)/$(BIN_DIR)/$(CC_NAME)-gcc
 TARGET_LD := toolchain/$(CC_NAME)/$(BIN_DIR)/$(CC_NAME)-ld
 TARGET_CC_FLAGS := -g -ffreestanding -falign-jumps -falign-functions -falign-labels -falign-loops -fstrength-reduce -fomit-frame-pointer -finline-functions -Wno-unused-function -fno-builtin -Werror -Wno-unused-label -Wno-cpp -Wno-unused-parameter -nostdlib -nostartfiles -nodefaultlibs -Wall -O0 -Iinc
 
-BUILD_FILES := $(BUILD_DIR)/kernel.asm.o $(BUILD_DIR)/kernel.o $(BUILD_DIR)/idt/idt.asm.o $(BUILD_DIR)/idt/idt.o $(BUILD_DIR)/memory/memory.o $(BUILD_DIR)/io/io.asm.o $(BUILD_DIR)/memory/heap/heap.o $(BUILD_DIR)/memory/heap/kheap.o
+BUILD_FILES := $(BUILD_DIR)/kernel.asm.o $(BUILD_DIR)/kernel.o $(BUILD_DIR)/idt/idt.asm.o $(BUILD_DIR)/idt/idt.o $(BUILD_DIR)/memory/memory.o $(BUILD_DIR)/io/io.asm.o $(BUILD_DIR)/memory/heap/heap.o $(BUILD_DIR)/memory/heap/kheap.o $(BUILD_DIR)/memory/paging/paging.asm.o $(BUILD_DIR)/memory/paging/paging.o
 INCLUDES := -I./$(SRC_DIR) -I./$(SRC_DIR)/idt -I./$(SRC_DIR)/memory -I./$(SRC_DIR)/io -I./$(SRC_DIR)/memory/heap
 
 all: clean folders bootloader kernel write
@@ -49,6 +49,11 @@ kernel:
 	$(TARGET_CC) $(INCLUDES) $(TARGET_CC_FLAGS) -std=gnu99 -c $(SRC_DIR)/memory/heap/kheap.c -o $(BUILD_DIR)/memory/heap/kheap.o
 	@printf "\n"
 
+	@printf "\e[0;32m\033[1m\n Paging... \n\n\033[0m\e[0;37m"
+	$(TARGET_CC) $(INCLUDES) $(TARGET_CC_FLAGS) -std=gnu99 -c $(SRC_DIR)/memory/paging/paging.c -o $(BUILD_DIR)/memory/paging/paging.o
+	$(TARGET_ASM) -f elf -g $(SRC_DIR)/memory/paging/paging.asm -o $(BUILD_DIR)/memory/paging/paging.asm.o
+	@printf "\n"
+
 	@printf "\e[0;32m\033[1m\n Linking kernel assembly... \n\n\033[0m\e[0;37m"
 	$(TARGET_LD) -g -relocatable $(BUILD_FILES) -o $(BUILD_DIR)/kernelfull.o
 
@@ -63,6 +68,7 @@ folders:
 	mkdir -p build/idt
 	mkdir -p build/memory
 	mkdir -p build/memory/heap
+	mkdir -p build/memory/paging
 	mkdir -p build/io
 
 run:
