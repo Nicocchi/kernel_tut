@@ -8,6 +8,7 @@
 #include "string/string.h"
 #include "disk/disk.h"
 #include "fs/pparser.h"
+#include "disk/streamer.h"
 
 uint16_t* video_mem = 0;
 uint16_t terminal_row = 0;
@@ -102,11 +103,11 @@ void kernel_main()
 
     print("\nNico Nico Nii!\nAnata no heart Nico Nico Nii!\n");
 
-    struct path_root* root_path = pathparser_parse("0:/bin/shell.exe", NULL);
-    if (root_path)
-    {
-
-    }
+    struct disk_stream* stream = diskstreamer_new(0);
+    diskstreamer_seek(stream, 0x201);
+    unsigned char c = 0;
+    diskstreamer_read(stream, &c, 1);
+    while (1) {}
 
     // char buf[512];
     // disk_read_sector(0, 1, buf);
