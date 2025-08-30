@@ -13,7 +13,8 @@ TARGET_CC_FLAGS := -g -ffreestanding -falign-jumps -falign-functions -falign-lab
 
 BUILD_FILES := $(BUILD_DIR)/kernel.asm.o $(BUILD_DIR)/kernel.o $(BUILD_DIR)/idt/idt.asm.o $(BUILD_DIR)/idt/idt.o $(BUILD_DIR)/memory/memory.o \
 			$(BUILD_DIR)/io/io.asm.o $(BUILD_DIR)/memory/heap/heap.o $(BUILD_DIR)/memory/heap/kheap.o $(BUILD_DIR)/memory/paging/paging.asm.o \
-			$(BUILD_DIR)/memory/paging/paging.o $(BUILD_DIR)/disk/disk.o $(BUILD_DIR)/string/string.o $(BUILD_DIR)/fs/pparser.o $(BUILD_DIR)/disk/streamer.o
+			$(BUILD_DIR)/memory/paging/paging.o $(BUILD_DIR)/disk/disk.o $(BUILD_DIR)/string/string.o $(BUILD_DIR)/fs/pparser.o $(BUILD_DIR)/disk/streamer.o \
+			$(BUILD_DIR)/fs/file.o
 INCLUDES := -I./$(SRC_DIR) -I./$(SRC_DIR)/idt -I./$(SRC_DIR)/memory -I./$(SRC_DIR)/io -I./$(SRC_DIR)/memory/heap
 
 all: clean folders bootloader kernel write
@@ -22,7 +23,11 @@ write:
 	@printf "\e[0;32m\033[1m\n Writing to $(TARGET).bin... \n\n\033[0m\e[0;37m"
 	dd if=$(BIN_DIR)/boot.bin >> $(BIN_DIR)/$(TARGET).bin
 	dd if=$(BIN_DIR)/kernel.bin >> $(BIN_DIR)/$(TARGET).bin
-	dd if=/dev/zero bs=512 count=100 >> $(BIN_DIR)/$(TARGET).bin
+	dd if=/dev/zero bs=1048576 count=16 >> $(BIN_DIR)/$(TARGET).bin
+	sudo mount -t vfat $(BIN_DIR)/$(TARGET).bin /mnt/d
+	# Copy a file over
+	sudo cp ./nico.txt /mnt/d
+	sudo umount /mnt/d
 
 bootloader:
 	@printf "\e[0;32m\033[1m\n Assembling bootloader... \n\n\033[0m\e[0;37m"
@@ -63,6 +68,10 @@ kernel:
 
 	@printf "\e[0;32m\033[1m\n String... \n\n\033[0m\e[0;37m"
 	$(TARGET_CC) $(INCLUDES) $(TARGET_CC_FLAGS) -std=gnu99 -c $(SRC_DIR)/string/string.c -o $(BUILD_DIR)/string/string.o
+	@printf "\n"
+	
+	@printf "\e[0;32m\033[1m\n File... \n\n\033[0m\e[0;37m"
+	$(TARGET_CC) $(INCLUDES) $(TARGET_CC_FLAGS) -std=gnu99 -c $(SRC_DIR)/fs/file.c -o $(BUILD_DIR)/fs/file.o
 	@printf "\n"
 
 	@printf "\e[0;32m\033[1m\n Path Parser... \n\n\033[0m\e[0;37m"
