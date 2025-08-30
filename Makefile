@@ -14,8 +14,8 @@ TARGET_CC_FLAGS := -g -ffreestanding -falign-jumps -falign-functions -falign-lab
 BUILD_FILES := $(BUILD_DIR)/kernel.asm.o $(BUILD_DIR)/kernel.o $(BUILD_DIR)/idt/idt.asm.o $(BUILD_DIR)/idt/idt.o $(BUILD_DIR)/memory/memory.o \
 			$(BUILD_DIR)/io/io.asm.o $(BUILD_DIR)/memory/heap/heap.o $(BUILD_DIR)/memory/heap/kheap.o $(BUILD_DIR)/memory/paging/paging.asm.o \
 			$(BUILD_DIR)/memory/paging/paging.o $(BUILD_DIR)/disk/disk.o $(BUILD_DIR)/string/string.o $(BUILD_DIR)/fs/pparser.o $(BUILD_DIR)/disk/streamer.o \
-			$(BUILD_DIR)/fs/file.o
-INCLUDES := -I./$(SRC_DIR) -I./$(SRC_DIR)/idt -I./$(SRC_DIR)/memory -I./$(SRC_DIR)/io -I./$(SRC_DIR)/memory/heap
+			$(BUILD_DIR)/fs/fat/fat16.o $(BUILD_DIR)/fs/file.o
+INCLUDES := -I./$(SRC_DIR) -I./$(SRC_DIR)/disk -I./$(SRC_DIR)/fs -I./$(SRC_DIR)/fs/fat -I./$(SRC_DIR)/idt -I./$(SRC_DIR)/memory -I./$(SRC_DIR)/io -I./$(SRC_DIR)/memory/heap -I./$(SRC_DIR)/string
 
 all: clean folders bootloader kernel write
 	
@@ -70,6 +70,10 @@ kernel:
 	$(TARGET_CC) $(INCLUDES) $(TARGET_CC_FLAGS) -std=gnu99 -c $(SRC_DIR)/string/string.c -o $(BUILD_DIR)/string/string.o
 	@printf "\n"
 	
+	@printf "\e[0;32m\033[1m\n FAT16... \n\n\033[0m\e[0;37m"
+	$(TARGET_CC) $(INCLUDES) $(TARGET_CC_FLAGS) -std=gnu99 -c $(SRC_DIR)/fs/fat/fat16.c -o $(BUILD_DIR)/fs/fat/fat16.o
+	@printf "\n"
+	
 	@printf "\e[0;32m\033[1m\n File... \n\n\033[0m\e[0;37m"
 	$(TARGET_CC) $(INCLUDES) $(TARGET_CC_FLAGS) -std=gnu99 -c $(SRC_DIR)/fs/file.c -o $(BUILD_DIR)/fs/file.o
 	@printf "\n"
@@ -95,6 +99,7 @@ folders:
 	mkdir -p build
 	mkdir -p build/disk
 	mkdir -p build/fs
+	mkdir -p build/fs/fat
 	mkdir -p build/idt
 	mkdir -p build/memory
 	mkdir -p build/memory/heap
