@@ -110,6 +110,8 @@ void kernel_main()
     {
         struct file_stat s;
         fstat(fd, &s);
+        fclose(fd);
+        print("closed nico.txt\n");
         // print("\nOpened nico.txt\n");
         // char buf[18];
         // fseek(fd, 2, SEEK_SET);
