@@ -32,8 +32,7 @@ void fs_insert_filesystem(struct filesystem* filesystem)
     if (!fs)
     {
         // TODO: Panic
-        print("Problem inserting filesystem");
-        while(1) {}
+        panic("fs_insert_filesystem\n");
     }
 
     *fs = filesystem;

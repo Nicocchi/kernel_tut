@@ -527,7 +527,8 @@ void fat16_fat_item_free(struct fat_item* item)
     }
     else
     {
-        // TODO: panic
+        // TODO: Panic
+        panic("fat_item_free\n");
     }
 
     kfree(item);
