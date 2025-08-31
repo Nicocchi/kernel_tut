@@ -108,11 +108,13 @@ void kernel_main()
     int fd = fopen("0:/nico.txt", "r");
     if (fd)
     {
-        print("\nOpened nico.txt\n");
-        char buf[18];
-        fseek(fd, 2, SEEK_SET);
-        fread(buf, 16, 1, fd);
-        print(buf);
+        struct file_stat s;
+        fstat(fd, &s);
+        // print("\nOpened nico.txt\n");
+        // char buf[18];
+        // fseek(fd, 2, SEEK_SET);
+        // fread(buf, 16, 1, fd);
+        // print(buf);
     }
     else
     {
