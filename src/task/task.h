@@ -39,5 +39,13 @@ struct task* task_new(struct process* process);
 struct task* task_current();
 struct task* task_get_next();
 int task_free(struct task* task);
+int task_page();
+int task_switch(struct task* task);
+
+void task_run_first_task();
+
+void task_return(struct registers* regs); // Will drop the user into userland
+void restore_general_purpose_registers(struct registers* regs);
+void user_registers();
 
 #endif

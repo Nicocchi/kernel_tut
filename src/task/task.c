@@ -93,6 +93,34 @@ int task_free(struct task* task)
     return 0;
 }
 
+// Takes the user out of the kernel page directory and loads
+// the user into the task page directory
+int task_page()
+{
+    user_registers();
+    task_switch(current_task);
+    return 0;
+}
+
+void task_run_first_task()
+{
+    if (!current_task)
+    {
+        // TODO: Panic
+        panic("Error: task_run_first_task: No current task exists!\n");
+    }
+
+    task_switch(task_head);
+    task_return(&task_head->registers);
+}
+
+int task_switch(struct task* task)
+{
+    current_task = task;
+    paging_switch(task->page_directory->directory_entry);
+    return 0;
+}
+
 int task_init(struct task* task, struct process* process)
 {
     memset(task, 0, sizeof(struct task));
