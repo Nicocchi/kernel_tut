@@ -6,5 +6,6 @@
 #define EINVARG 2   // Invalid arg
 #define ENOMEM 3    // Out of memory
 #define EBADPATH 4  // Bad path
+#define EFSNOTUS 5  // Filesystem not us
 
 #endif // !STATUS_H
