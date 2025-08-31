@@ -73,6 +73,84 @@ out:
     return res;
 }
 
+void* paging_align_address(void* ptr)
+{
+    if ((uint32_t)ptr % PAGING_PAGE_SIZE)
+    {
+        return (void*)((uint32_t)ptr + PAGING_PAGE_SIZE - ((uint32_t)ptr % PAGING_PAGE_SIZE));
+    }
+
+    return ptr;
+}
+
+int paging_map(uint32_t* directory, void* virt, void* phys, int flags)
+{
+    if (((unsigned int)virt % PAGING_PAGE_SIZE) || ((unsigned int)phys % PAGING_PAGE_SIZE))
+    {
+        return -EINVARG;
+    }
+
+    return paging_set(directory, virt, (uint32_t)phys | flags);
+}
+
+// Maps from the virtual and physical address by x amount of pages
+// Virt = starting virtual address
+// Phys = starting physical address
+// Count = the amount of pages to count
+// Ex If you pass 0x1000 to virt and 0x5000 to phys and a count of 2, it'll map
+// 0x1000 to 0x5000 and it'll map 0x2000 to 0x6000 because the count is 2
+int paging_map_range(uint32_t* directory, void* virt, void* phys, int count, int flags)
+{
+    int res = 0;
+    for (int i = 0; i < count; i++)
+    {
+        res = paging_map(directory, virt, phys, flags);
+        if (res == 0)
+        {
+            break;
+        }
+        virt += PAGING_PAGE_SIZE;
+        phys += PAGING_PAGE_SIZE;
+    }
+
+    return res;
+}
+
+int paging_map_to(uint32_t* directory, void* virt, void* phys, void* phys_end, int flags)
+{
+    int res = 0;
+    if ((uint32_t)virt % PAGING_PAGE_SIZE)
+    {
+        res = -EINVARG;
+        goto out;
+    }
+
+    if ((uint32_t)phys % PAGING_PAGE_SIZE)
+    {
+        res = -EINVARG;
+        goto out;
+    }
+
+    if ((uint32_t)phys_end % PAGING_PAGE_SIZE)
+    {
+        res = -EINVARG;
+        goto out;
+    }
+
+    if ((uint32_t)phys_end < (uint32_t)phys)
+    {
+        res = -EINVARG;
+        goto out;
+    }
+
+    uint32_t total_bytes = phys_end - phys;
+    int total_pages = total_bytes / PAGING_PAGE_SIZE;
+    res = paging_map_range(directory, virt, phys, total_pages, flags);
+
+out:
+    return res;
+}
+
 // Set a page table entry to the value provided
 int paging_set(uint32_t* directory, void* virt, uint32_t val)
 {

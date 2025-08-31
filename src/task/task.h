@@ -3,6 +3,7 @@
 
 #include "config.h"
 #include "memory/paging/paging.h"
+#include "process.h"
 
 struct registers
 {
@@ -21,16 +22,20 @@ struct registers
     uint32_t ss;
 };
 
+struct process;
+
 struct task
 {
     struct paging_4gb_chunk* page_directory;    // Page directory for the task
     struct registers registers;                 // Registers of the task when the task is not running
 
+    struct process* process;
+
     struct task* next;
     struct task* prev;
 };
 
-struct task* task_new();
+struct task* task_new(struct process* process);
 struct task* task_current();
 struct task* task_get_next();
 int task_free(struct task* task);

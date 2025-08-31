@@ -9,5 +9,6 @@
 #define EFSNOTUS 5  // Filesystem not us
 #define ERDONLY 6   // Read only
 #define EUNIMP 7    // Not implemented
+#define EISTKN 8    // Is taken
 
 #endif // !STATUS_H

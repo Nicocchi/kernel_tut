@@ -16,7 +16,7 @@ BUILD_FILES := $(BUILD_DIR)/kernel.asm.o $(BUILD_DIR)/kernel.o $(BUILD_DIR)/idt/
 			$(BUILD_DIR)/io/io.asm.o $(BUILD_DIR)/memory/heap/heap.o $(BUILD_DIR)/memory/heap/kheap.o $(BUILD_DIR)/memory/paging/paging.asm.o \
 			$(BUILD_DIR)/memory/paging/paging.o $(BUILD_DIR)/disk/disk.o $(BUILD_DIR)/string/string.o $(BUILD_DIR)/fs/pparser.o $(BUILD_DIR)/disk/streamer.o \
 			$(BUILD_DIR)/fs/fat/fat16.o $(BUILD_DIR)/fs/file.o $(BUILD_DIR)/gdt/gdt.asm.o $(BUILD_DIR)/gdt/gdt.o $(BUILD_DIR)/task/tss.asm.o \
-			$(BUILD_DIR)/task/task.o
+			$(BUILD_DIR)/task/task.o $(BUILD_DIR)/task/process.o
 
 INCLUDES := -I./$(SRC_DIR) -I./$(SRC_DIR)/disk -I./$(SRC_DIR)/fs -I./$(SRC_DIR)/fs/fat -I./$(SRC_DIR)/idt -I./$(SRC_DIR)/memory -I./$(SRC_DIR)/io \
 			-I./$(SRC_DIR)/memory/heap -I./$(SRC_DIR)/string -I./$(SRC_DIR)/gdt -I./$(SRC_DIR)/task
@@ -60,6 +60,9 @@ kernel:
 
 	@printf "\e[0;32m\033[1m\n Task... \n\n\033[0m\e[0;37m"
 	$(TARGET_CC) $(INCLUDES) $(TARGET_CC_FLAGS) -std=gnu99 -c $(SRC_DIR)/task/task.c -o $(BUILD_DIR)/task/task.o
+
+	@printf "\e[0;32m\033[1m\n Process... \n\n\033[0m\e[0;37m"
+	$(TARGET_CC) $(INCLUDES) $(TARGET_CC_FLAGS) -std=gnu99 -c $(SRC_DIR)/task/process.c -o $(BUILD_DIR)/task/process.o
 	
 	@printf "\e[0;32m\033[1m\n io... \n\n\033[0m\e[0;37m"
 	$(TARGET_ASM) -f elf -g $(SRC_DIR)/io/io.asm -o $(BUILD_DIR)/io/io.asm.o
