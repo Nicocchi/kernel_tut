@@ -7,5 +7,6 @@
 #define ENOMEM 3    // Out of memory
 #define EBADPATH 4  // Bad path
 #define EFSNOTUS 5  // Filesystem not us
+#define ERDONLY 6   // Read only
 
 #endif // !STATUS_H

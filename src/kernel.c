@@ -108,11 +108,21 @@ void kernel_main()
 
     print("\nNico Nico Nii!\nAnata no heart Nico Nico Nii!\n");
 
-    struct disk_stream* stream = diskstreamer_new(0);
-    diskstreamer_seek(stream, 0x201);
-    unsigned char c = 0;
-    diskstreamer_read(stream, &c, 1);
+    int fd = fopen("0:/nico.txt", "r");
+    if (fd)
+    {
+        print("We opened nico.txt\n");
+    }
+    else
+    {
+        print("0:/to.txt does not exist\n");
+    }
     while (1) {}
+
+    // struct disk_stream* stream = diskstreamer_new(0);
+    // diskstreamer_seek(stream, 0x201);
+    // unsigned char c = 0;
+    // diskstreamer_read(stream, &c, 1);
 
     // char buf[512];
     // disk_read_sector(0, 1, buf);
