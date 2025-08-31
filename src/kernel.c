@@ -110,7 +110,8 @@ void kernel_main()
     {
         print("\nOpened nico.txt\n");
         char buf[18];
-        fread(buf, 18, 1, fd);
+        fseek(fd, 2, SEEK_SET);
+        fread(buf, 16, 1, fd);
         print(buf);
     }
     else
