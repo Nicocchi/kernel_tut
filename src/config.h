@@ -18,5 +18,5 @@
 
 #define PANDORA_MAX_PATH 108
 
-#define PANDORA_TOTAL_GDT_SEGMENTS      3
+#define PANDORA_TOTAL_GDT_SEGMENTS      6
 #endif
