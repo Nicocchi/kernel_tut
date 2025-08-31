@@ -7,6 +7,8 @@
 #include "memory/paging/paging.h"
 #include "memory/memory.h"
 #include "string/string.h"
+#include "task/task.h"
+#include "task/process.h"
 #include "fs/file.h"
 #include "disk/disk.h"
 #include "fs/pparser.h"
@@ -14,6 +16,7 @@
 #include "task/tss.h"
 #include "gdt/gdt.h"
 #include "config.h"
+#include "status.h"
 
 uint16_t* video_mem = 0;
 uint16_t terminal_row = 0;
@@ -74,7 +77,7 @@ void print(const char* str)
 
 void panic(const char* msg)
 {
-    print("Uh oh! The kernel has panicked and has halted!\n");
+    print("\n\nUh oh! The kernel has panicked and has halted!\n");
     print(msg);
     while(1) {}
 }
@@ -137,28 +140,20 @@ void kernel_main()
     // Enable paging
     enable_paging();
     print("paging enabled...\n");
+
+    struct process* process = 0;
+    int res = process_load("0:/blank.bin", &process);
+    if (res != PANDORAOS_ALL_OK)
+    {
+        panic("kernel: Failed to load blank.bin");
+    }
+
+    task_run_first_task();
     
-    enable_interrupts();
-    print("interrupts enabled...\n\n\n");
+    // enable_interrupts();
+    // print("interrupts enabled...\n\n\n");
 
     print("\nNico Nico Nii!\nAnata no heart Nico Nico Nii!\n");
 
-    int fd = fopen("0:/nico.txt", "r");
-    if (fd)
-    {
-        struct file_stat s;
-        fstat(fd, &s);
-        fclose(fd);
-        print("closed nico.txt\n");
-        // print("\nOpened nico.txt\n");
-        // char buf[18];
-        // fseek(fd, 2, SEEK_SET);
-        // fread(buf, 16, 1, fd);
-        // print(buf);
-    }
-    else
-    {
-        print("0:/to.txt does not exist\n");
-    }
     while (1) {}
 }

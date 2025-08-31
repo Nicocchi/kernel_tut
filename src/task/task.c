@@ -35,6 +35,7 @@ struct task* task_new(struct process* process)
     {
         task_head = task;
         task_tail = task;
+        current_task = task;
         goto out;
     }
 
@@ -93,6 +94,13 @@ int task_free(struct task* task)
     return 0;
 }
 
+int task_switch(struct task* task)
+{
+    current_task = task;
+    paging_switch(task->page_directory->directory_entry);
+    return 0;
+}
+
 // Takes the user out of the kernel page directory and loads
 // the user into the task page directory
 int task_page()
@@ -114,26 +122,21 @@ void task_run_first_task()
     task_return(&task_head->registers);
 }
 
-int task_switch(struct task* task)
-{
-    current_task = task;
-    paging_switch(task->page_directory->directory_entry);
-    return 0;
-}
-
 int task_init(struct task* task, struct process* process)
 {
     memset(task, 0, sizeof(struct task));
     // Map the entire 4GB address space to it's self
     task->page_directory = paging_new_4gb(PAGING_IS_PRESENT | PAGING_ACCESS_FROM_ALL);
-    if (task->page_directory)
+    if (!task->page_directory)
     {
         return -EIO;
     }
 
     task->registers.ip = PANDORA_PROGRAM_VIRTUAL_ADDRESS;
     task->registers.ss = USER_DATA_SEGMENT;
+    task->registers.cs = USER_CODE_SEGMENT;
     task->registers.esp = PANDORA_PROGRAM_VIRTUAL_STACK_ADDRESS_START;
+
     task->process = process;
 
     return 0;

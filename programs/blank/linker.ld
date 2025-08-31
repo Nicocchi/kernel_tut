@@ -2,7 +2,7 @@ ENTRY(_start)
 OUTPUT_FORMAT(binary)
 SECTIONS
 {
-    . = 1M; /* Loads kernel 1M into memory at address 0x100000*/
+    . = 0x400000; /* The address where all programs will be placed */
     .text : ALIGN(4096)
     {
         *(.text)

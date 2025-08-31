@@ -21,7 +21,9 @@ BUILD_FILES := $(BUILD_DIR)/kernel.asm.o $(BUILD_DIR)/kernel.o $(BUILD_DIR)/idt/
 INCLUDES := -I./$(SRC_DIR) -I./$(SRC_DIR)/disk -I./$(SRC_DIR)/fs -I./$(SRC_DIR)/fs/fat -I./$(SRC_DIR)/idt -I./$(SRC_DIR)/memory -I./$(SRC_DIR)/io \
 			-I./$(SRC_DIR)/memory/heap -I./$(SRC_DIR)/string -I./$(SRC_DIR)/gdt -I./$(SRC_DIR)/task
 
-all: clean folders bootloader kernel write
+USER_PROGRAMS_DIR := programs
+
+all: clean folders bootloader kernel user_programs write
 	
 write:
 	@printf "\e[0;32m\033[1m\n Writing to $(TARGET).bin... \n\n\033[0m\e[0;37m"
@@ -31,6 +33,7 @@ write:
 	sudo mount -t vfat $(BIN_DIR)/$(TARGET).bin /mnt/d
 	# Copy a file over
 	sudo cp ./nico.txt /mnt/d
+	sudo cp ./$(USER_PROGRAMS_DIR)/blank/bin/blank.bin /mnt/d
 	sudo umount /mnt/d
 
 bootloader:
@@ -135,7 +138,14 @@ run:
 	@printf "\e[0;32m\033[1m\n Running ${TARGET}.bin... \n\n\033[0m\e[0;37m"
 	qemu-system-x86_64 -hda $(BIN_DIR)/${TARGET}.bin
 
-clean:
+user_programs:
+	@printf "\e[0;32m\033[1m\n Compiling programs... \n\n\033[0m\e[0;37m"
+	cd $(USER_PROGRAMS_DIR)/blank && $(MAKE) all
+
+user_programs_clean:
+	cd $(USER_PROGRAMS_DIR)/blank && $(MAKE) clean
+
+clean: user_programs_clean
 	@printf "\e[0;32m\033[1m\n Clearing files before building... \n\n\033[0m\e[0;37m"
 	@rm -rf ./bin
 	@rm -rf ./build
