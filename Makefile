@@ -14,8 +14,9 @@ TARGET_CC_FLAGS := -g -ffreestanding -falign-jumps -falign-functions -falign-lab
 BUILD_FILES := $(BUILD_DIR)/kernel.asm.o $(BUILD_DIR)/kernel.o $(BUILD_DIR)/idt/idt.asm.o $(BUILD_DIR)/idt/idt.o $(BUILD_DIR)/memory/memory.o \
 			$(BUILD_DIR)/io/io.asm.o $(BUILD_DIR)/memory/heap/heap.o $(BUILD_DIR)/memory/heap/kheap.o $(BUILD_DIR)/memory/paging/paging.asm.o \
 			$(BUILD_DIR)/memory/paging/paging.o $(BUILD_DIR)/disk/disk.o $(BUILD_DIR)/string/string.o $(BUILD_DIR)/fs/pparser.o $(BUILD_DIR)/disk/streamer.o \
-			$(BUILD_DIR)/fs/fat/fat16.o $(BUILD_DIR)/fs/file.o
-INCLUDES := -I./$(SRC_DIR) -I./$(SRC_DIR)/disk -I./$(SRC_DIR)/fs -I./$(SRC_DIR)/fs/fat -I./$(SRC_DIR)/idt -I./$(SRC_DIR)/memory -I./$(SRC_DIR)/io -I./$(SRC_DIR)/memory/heap -I./$(SRC_DIR)/string
+			$(BUILD_DIR)/fs/fat/fat16.o $(BUILD_DIR)/fs/file.o $(BUILD_DIR)/gdt/gdt.asm.o $(BUILD_DIR)/gdt/gdt.o
+INCLUDES := -I./$(SRC_DIR) -I./$(SRC_DIR)/disk -I./$(SRC_DIR)/fs -I./$(SRC_DIR)/fs/fat -I./$(SRC_DIR)/idt -I./$(SRC_DIR)/memory -I./$(SRC_DIR)/io \
+			-I./$(SRC_DIR)/memory/heap -I./$(SRC_DIR)/string -I./$(SRC_DIR)/gdt
 
 all: clean folders bootloader kernel write
 	
@@ -38,11 +39,17 @@ kernel:
 	$(TARGET_ASM) -f elf -g $(SRC_DIR)/kernel.asm -o $(BUILD_DIR)/kernel.asm.o
 	@printf "\n"
 	$(TARGET_CC) $(INCLUDES) $(TARGET_CC_FLAGS) -std=gnu99 -c $(SRC_DIR)/kernel.c -o $(BUILD_DIR)/kernel.o
-	@printf "\e[0;32m\033[1m\n idt... \n\n\033[0m\e[0;37m"
+	@printf "\e[0;32m\033[1m\n IDT... \n\n\033[0m\e[0;37m"
 	$(TARGET_ASM) -f elf -g $(SRC_DIR)/idt/idt.asm -o $(BUILD_DIR)/idt/idt.asm.o
 	@printf "\n"
 	$(TARGET_CC) $(INCLUDES) $(TARGET_CC_FLAGS) -std=gnu99 -c $(SRC_DIR)/idt/idt.c -o $(BUILD_DIR)/idt/idt.o
-	@printf "\e[0;32m\033[1m\n memory... \n\n\033[0m\e[0;37m"
+
+	@printf "\e[0;32m\033[1m\n GDT... \n\n\033[0m\e[0;37m"
+	$(TARGET_ASM) -f elf -g $(SRC_DIR)/gdt/gdt.asm -o $(BUILD_DIR)/gdt/gdt.asm.o
+	@printf "\n"
+	$(TARGET_CC) $(INCLUDES) $(TARGET_CC_FLAGS) -std=gnu99 -c $(SRC_DIR)/gdt/gdt.c -o $(BUILD_DIR)/gdt/gdt.o
+
+	@printf "\e[0;32m\033[1m\n Memory... \n\n\033[0m\e[0;37m"
 	$(TARGET_CC) $(INCLUDES) $(TARGET_CC_FLAGS) -std=gnu99 -c $(SRC_DIR)/memory/memory.c -o $(BUILD_DIR)/memory/memory.o
 	
 	@printf "\e[0;32m\033[1m\n io... \n\n\033[0m\e[0;37m"
@@ -101,6 +108,7 @@ folders:
 	mkdir -p build/fs
 	mkdir -p build/fs/fat
 	mkdir -p build/idt
+	mkdir -p build/gdt
 	mkdir -p build/memory
 	mkdir -p build/memory/heap
 	mkdir -p build/memory/paging
