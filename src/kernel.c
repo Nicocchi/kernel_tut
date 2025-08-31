@@ -95,9 +95,6 @@ void kernel_main()
     
     // Switch to kernel paging chunk
     paging_switch(paging_4gb_chunk_get_directory(kernel_chunk));
-
-    // char* ptr = kzalloc(4096);
-    // paging_set(paging_4gb_chunk_get_directory(kernel_chunk), (void*)0x1000, (uint32_t)ptr | PAGING_ACCESS_FROM_ALL | PAGING_IS_PRESENT | PAGING_IS_WRITEABLE);
     
     // Enable paging
     enable_paging();
@@ -111,35 +108,14 @@ void kernel_main()
     int fd = fopen("0:/nico.txt", "r");
     if (fd)
     {
-        print("We opened nico.txt\n");
+        print("\nOpened nico.txt\n");
+        char buf[18];
+        fread(buf, 18, 1, fd);
+        print(buf);
     }
     else
     {
         print("0:/to.txt does not exist\n");
     }
     while (1) {}
-
-    // struct disk_stream* stream = diskstreamer_new(0);
-    // diskstreamer_seek(stream, 0x201);
-    // unsigned char c = 0;
-    // diskstreamer_read(stream, &c, 1);
-
-    // char buf[512];
-    // disk_read_sector(0, 1, buf);
-
-    // Paging test
-    // char *ptr2 = (char*) 0x1000;
-    // ptr2[0] = 'A';
-    // ptr2[1] = 'B';
-    // print(ptr2);
-    // print(ptr);
-    
-
-    // Heap test
-    // void* ptr = kmalloc(50);
-    // void* ptr2 = kmalloc(5000);
-    // void* ptr3 = kmalloc(5600);
-    // kfree(ptr);
-    // void* ptr4 = kmalloc(50);
-    // if (ptr || ptr2 || ptr3 || ptr4){}
 }
