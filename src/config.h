@@ -31,4 +31,6 @@
 #define PANDORA_MAX_PROCESSES                       12
 
 #define PANDORA_MAX_ISR80H_COMMANDS                 1024
+
+#define PANDORA_KEYBOARD_BUFFER_SIZE                1024
 #endif

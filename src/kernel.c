@@ -6,6 +6,7 @@
 #include "memory/heap/kheap.h"
 #include "memory/paging/paging.h"
 #include "memory/memory.h"
+#include "keyboard/keyboard.h"
 #include "string/string.h"
 #include "isr80h/isr80h.h"
 #include "task/task.h"
@@ -152,7 +153,11 @@ void kernel_main()
 
     // Register the kernel commands
     isr80h_register_commands();
-    print("kernel commands registered...\n\n");
+    print("kernel commands registered...\n");
+
+    // Initialize all keyboards
+    keyboard_init();
+    print("keyboard initialized...\n\n")
 
     struct process* process = 0;
     int res = process_load("0:/blank.bin", &process);
