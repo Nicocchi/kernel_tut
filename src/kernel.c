@@ -138,7 +138,7 @@ void kernel_main()
 
     // Load the TSS
     tss_load(0x28); // 0x28 is the offset after being loaded in the GDT_REAL
-    print("TSS initialized and loaded\n");
+    print("TSS initialized and loaded...\n");
     
     // Setup paging
     kernel_chunk = paging_new_4gb(PAGING_IS_WRITEABLE | PAGING_IS_PRESENT | PAGING_ACCESS_FROM_ALL);
@@ -152,7 +152,7 @@ void kernel_main()
 
     // Register the kernel commands
     isr80h_register_commands();
-    print("kernel commands registered...\n");
+    print("kernel commands registered...\n\n");
 
     struct process* process = 0;
     int res = process_load("0:/blank.bin", &process);
@@ -165,8 +165,6 @@ void kernel_main()
     
     // enable_interrupts();
     // print("interrupts enabled...\n\n\n");
-
-    print("\nNico Nico Nii!\nAnata no heart Nico Nico Nii!\n");
 
     while (1) {}
 }
