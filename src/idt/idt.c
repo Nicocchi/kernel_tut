@@ -2,14 +2,17 @@
 #include "config.h"
 #include "kernel.h"
 #include "memory/memory.h"
+#include "task/task.h"
 #include "io/io.h"
 
+static ISR80H_COMMAND isr80h_commands[PANDORA_MAX_ISR80H_COMMANDS];
 struct idt_desc idt_descriptors[PANDORAOS_TOTAL_INTERRUPTS];
 struct idtr_desc idtr_descriptor;
 
 extern void idt_load(struct idtr_desc* ptr);    // Loads the IDT
 extern void int21h();
 extern void no_interrupt();
+extern void isr80h_wrapper();
 
 void int21h_handler()
 {
@@ -50,6 +53,53 @@ void idt_init()
     }
     idt_set(0, idt_zero);
     idt_set(0x21, int21h);
+    idt_set(0x80, isr80h_wrapper);
 
     idt_load(&idtr_descriptor);
+}
+
+void isr80h_register_command(int command_id, ISR80H_COMMAND command)
+{
+  if (command_id < 0 || command_id >= PANDORA_MAX_ISR80H_COMMANDS)
+  {
+    panic("isr80h_register_command: Command is out of bounds.\n");
+  }
+
+  if (isr80h_commands[command_id])
+  {
+    panic("isr80h_register_command: Attempting to overwrite an existing command.\n");
+  }
+
+  isr80h_commands[command_id] = command;
+}
+
+void* isr80h_handle_command(int command, struct interrupt_frame* frame)
+{
+  void* result = 0;
+  if (command < 0 || command >= PANDORA_MAX_ISR80H_COMMANDS)
+  {
+    // Invalid command
+    return 0;
+  }
+
+  ISR80H_COMMAND command_func = isr80h_commands[command];
+  // Check for a kernel command that does not exist
+  if (!command_func)
+  {
+    return 0;
+  }
+
+  result = command_func(frame);
+
+  return result;
+}
+
+void* isr80h_handler(int command, struct interrupt_frame* frame)
+{
+  void* res = 0;
+  kernel_page();
+  task_current_save_state(frame);
+  res = isr80h_handle_command(command, frame);
+  task_page();
+  return res;
 }

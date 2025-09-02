@@ -7,6 +7,7 @@
 #include "memory/paging/paging.h"
 #include "memory/memory.h"
 #include "string/string.h"
+#include "isr80h/isr80h.h"
 #include "task/task.h"
 #include "task/process.h"
 #include "fs/file.h"
@@ -82,6 +83,15 @@ void panic(const char* msg)
     while(1) {}
 }
 
+static struct paging_4gb_chunk* kernel_chunk = 0;
+
+// Switches the page directory and registers to the kernel page and registers
+void kernel_page()
+{
+    kernel_registers();
+    paging_switch(kernel_chunk);
+}
+
 struct tss tss;
 
 struct gdt gdt_real[PANDORA_TOTAL_GDT_SEGMENTS];
@@ -94,7 +104,6 @@ struct gdt_structured gdt_structured[PANDORA_TOTAL_GDT_SEGMENTS] = {
     {.base = (uint32_t)&tss, .limit = sizeof(tss), .type = 0xE9}     // TSS
 };
 
-static struct paging_4gb_chunk* kernel_chunk = 0;
 void kernel_main()
 {
     terminal_initialize();
@@ -140,6 +149,10 @@ void kernel_main()
     // Enable paging
     enable_paging();
     print("paging enabled...\n");
+
+    // Register the kernel commands
+    isr80h_register_commands();
+    print("kernel commands registered...\n");
 
     struct process* process = 0;
     int res = process_load("0:/blank.bin", &process);
