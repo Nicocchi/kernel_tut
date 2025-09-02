@@ -157,10 +157,10 @@ void kernel_main()
 
     // Initialize all keyboards
     keyboard_init();
-    print("keyboard initialized...\n\n")
+    print("keyboard initialized...\n\n");
 
     struct process* process = 0;
-    int res = process_load("0:/blank.bin", &process);
+    int res = process_load_switch("0:/blank.bin", &process);
     if (res != PANDORAOS_ALL_OK)
     {
         panic("kernel: Failed to load blank.bin");

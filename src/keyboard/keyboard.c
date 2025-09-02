@@ -3,13 +3,14 @@
 #include "kernel.h"
 #include "task/process.h"
 #include "task/task.h"
+#include "pso2.h"
 
 static struct keyboard* keyboard_list_head = 0;
 static struct keyboard* keyboard_list_tail = 0;
 
 void keyboard_init()
 {
-
+    keyboard_insert(pso2_init());
 }
 
 int keyboard_insert(struct keyboard* keyboard)

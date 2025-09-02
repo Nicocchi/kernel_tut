@@ -7,6 +7,7 @@
 
 struct interrupt_frame;
 typedef void*(*ISR80H_COMMAND)(struct interrupt_frame* frame);
+typedef void(*INTERRUPT_CB_FUNC)();
 
 struct idt_desc
 {
@@ -44,5 +45,6 @@ void idt_init();
 void enable_interrupts();
 void disable_interrupts();
 void isr80h_register_command(int command_id, ISR80H_COMMAND command);
+int idt_register_interrupt_cb(int interrupt, INTERRUPT_CB_FUNC callback);
 
 #endif
