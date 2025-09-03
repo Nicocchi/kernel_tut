@@ -16,7 +16,7 @@ blank:
 	@printf "\e[0;32m\033[1m\n Compiling Blank program... \n\n\033[0m\e[0;37m"
 	cd ../../
 	$(TARGET_ASM) -f elf ./$(TARGET).asm -o ./$(BUILD_DIR)/$(TARGET).o
-	$(TARGET_CC) -g -T ./linker.ld -o ./$(BIN_DIR)/$(TARGET).bin $(TARGET_CC_FLAGS) ./$(BUILD_DIR)/$(TARGET).o
+	$(TARGET_CC) -g -T ./linker.ld -o ./$(BIN_DIR)/$(TARGET).elf $(TARGET_CC_FLAGS) ./$(BUILD_DIR)/$(TARGET).o
 	@printf "\n"
 
 clean:

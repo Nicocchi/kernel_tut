@@ -184,10 +184,10 @@ void kernel_main()
     print("keyboard initialized...\n\n");
 
     struct process* process = 0;
-    int res = process_load_switch("0:/blank.bin", &process);
+    int res = process_load_switch("0:/blank.elf", &process);
     if (res != PANDORAOS_ALL_OK)
     {
-        panic("kernel: Failed to load blank.bin");
+        panic("kernel: Failed to load blank.elf");
     }
 
     task_run_first_task();

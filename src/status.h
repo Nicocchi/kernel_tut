@@ -10,5 +10,6 @@
 #define ERDONLY 6   // Read only
 #define EUNIMP 7    // Not implemented
 #define EISTKN 8    // Is taken
+#define EINFORMAT 9 // Invalid format
 
 #endif // !STATUS_H

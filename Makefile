@@ -17,10 +17,11 @@ BUILD_FILES := $(BUILD_DIR)/kernel.asm.o $(BUILD_DIR)/kernel.o $(BUILD_DIR)/idt/
 			$(BUILD_DIR)/memory/paging/paging.o $(BUILD_DIR)/disk/disk.o $(BUILD_DIR)/string/string.o $(BUILD_DIR)/fs/pparser.o $(BUILD_DIR)/disk/streamer.o \
 			$(BUILD_DIR)/fs/fat/fat16.o $(BUILD_DIR)/fs/file.o $(BUILD_DIR)/gdt/gdt.asm.o $(BUILD_DIR)/gdt/gdt.o $(BUILD_DIR)/task/tss.asm.o \
 			$(BUILD_DIR)/task/task.o $(BUILD_DIR)/task/task.asm.o $(BUILD_DIR)/task/process.o $(BUILD_DIR)/isr80h/isr80h.o $(BUILD_DIR)/isr80h/misc.o \
-			$(BUILD_DIR)/isr80h/io.o $(BUILD_DIR)/keyboard/keyboard.o $(BUILD_DIR)/keyboard/pso2.o
+			$(BUILD_DIR)/isr80h/io.o $(BUILD_DIR)/keyboard/keyboard.o $(BUILD_DIR)/keyboard/pso2.o $(BUILD_DIR)/loader/formats/elf_loader.o \
+			$(BUILD_DIR)/loader/formats/elf.o
 
 INCLUDES := -I./$(SRC_DIR) -I./$(SRC_DIR)/disk -I./$(SRC_DIR)/fs -I./$(SRC_DIR)/fs/fat -I./$(SRC_DIR)/idt -I./$(SRC_DIR)/memory -I./$(SRC_DIR)/io \
-			-I./$(SRC_DIR)/memory/heap -I./$(SRC_DIR)/string -I./$(SRC_DIR)/gdt -I./$(SRC_DIR)/task
+			-I./$(SRC_DIR)/memory/heap -I./$(SRC_DIR)/string -I./$(SRC_DIR)/gdt -I./$(SRC_DIR)/task -I./$(SRC_DIR)/loader/formats
 
 USER_PROGRAMS_DIR := programs
 
@@ -34,7 +35,7 @@ write:
 	sudo mount -t vfat $(BIN_DIR)/$(TARGET).bin /mnt/d
 	# Copy a file over
 	sudo cp ./nico.txt /mnt/d
-	sudo cp ./$(USER_PROGRAMS_DIR)/blank/bin/blank.bin /mnt/d
+	sudo cp ./$(USER_PROGRAMS_DIR)/blank/bin/blank.elf /mnt/d
 	sudo umount /mnt/d
 
 bootloader:
@@ -129,6 +130,11 @@ kernel:
 	$(TARGET_CC) $(INCLUDES) $(TARGET_CC_FLAGS) -std=gnu99 -c $(SRC_DIR)/keyboard/pso2.c -o $(BUILD_DIR)/keyboard/pso2.o
 	@printf "\n"
 
+	@printf "\e[0;32m\033[1m\n Elf Loader... \n\n\033[0m\e[0;37m"
+	$(TARGET_CC) $(INCLUDES) $(TARGET_CC_FLAGS) -std=gnu99 -c $(SRC_DIR)/loader/formats/elf.c -o $(BUILD_DIR)/loader/formats/elf.o
+	$(TARGET_CC) $(INCLUDES) $(TARGET_CC_FLAGS) -std=gnu99 -c $(SRC_DIR)/loader/formats/elf_loader.c -o $(BUILD_DIR)/loader/formats/elf_loader.o
+	@printf "\n"
+
 	@printf "\e[0;32m\033[1m\n Linking kernel assembly... \n\n\033[0m\e[0;37m"
 	$(TARGET_LD) -g -relocatable $(BUILD_FILES) -o $(BUILD_DIR)/kernelfull.o
 
@@ -153,6 +159,7 @@ folders:
 	mkdir -p build/io
 	mkdir -p build/isr80h
 	mkdir -p build/keyboard
+	mkdir -p build/loader/formats
 
 run:
 	@printf "\e[0;32m\033[1m\n Running ${TARGET}.bin... \n\n\033[0m\e[0;37m"
