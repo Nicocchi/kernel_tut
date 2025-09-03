@@ -1,6 +1,7 @@
 #include "streamer.h"
 #include "memory/heap/kheap.h"
 #include "config.h"
+#include <stdbool.h>
 
 struct disk_stream* diskstreamer_new(int disk_id)
 {
@@ -29,7 +30,14 @@ int diskstreamer_read(struct disk_stream* stream, void* out, int total)
     // Calculate sector to be using
     int sector = stream->pos / PANDORA_SECTOR_SIZE;
     int offset = stream->pos % PANDORA_SECTOR_SIZE;
+    int total_to_read = total;
+    bool overflow = (offset + total_to_read) >= PANDORA_SECTOR_SIZE;
     char buf[PANDORA_SECTOR_SIZE];
+
+    if (overflow)
+    {
+        total_to_read -= (offset + total_to_read) - PANDORA_SECTOR_SIZE;
+    }
 
     int res = disk_read_block(stream->disk, sector, 1, buf);
     if (res < 0)
@@ -43,7 +51,7 @@ int diskstreamer_read(struct disk_stream* stream, void* out, int total)
     // So load the sector into the local buffer var and then loop through the buffer
     // and set the amount to only the amount being asked for so there is never
     // a buffer overflow.
-    int total_to_read = total > PANDORA_SECTOR_SIZE ? PANDORA_SECTOR_SIZE : total;
+    
     for (int i = 0; i < total_to_read; i++)
     {
         *(char*)out++ = buf[offset + i];
@@ -51,9 +59,9 @@ int diskstreamer_read(struct disk_stream* stream, void* out, int total)
 
     // Adjust the stream
     stream->pos += total_to_read;
-    if (total > PANDORA_SECTOR_SIZE)
+    if (overflow)
     {
-        res = diskstreamer_read(stream, out, total - PANDORA_SECTOR_SIZE);
+        res = diskstreamer_read(stream, out, total - total_to_read);
     }
 
 out:
