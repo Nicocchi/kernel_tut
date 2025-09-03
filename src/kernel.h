@@ -7,6 +7,7 @@
 #define PANDORAOS_MAX_PATH 108
 
 void kernel_main();
+void terminal_writechar(char c, char color);
 void print(const char* str);
 void panic(const char* msg);
 void kernel_page();
