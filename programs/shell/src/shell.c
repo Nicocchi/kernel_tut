@@ -12,7 +12,8 @@ int main(int argc, char** argv)
         char buf[1024];
         pandora_terminal_readline(buf, sizeof(buf), true);
         print("\n");
-        pandora_process_load_start(buf);
+        pandora_system_run(buf);
+        print("\n");
     }
     return 0;
 }

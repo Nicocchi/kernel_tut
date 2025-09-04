@@ -5,13 +5,10 @@
 
 int main(int argc, char** argv)
 {
-    char* ptr = malloc(20);
-    strcpy(ptr, "yazawa nico");
-    print(ptr);
-    free(ptr);
-
-    ptr[0] = 'N';
-    print("\nabc\n");
+    for (int i = 0; i < argc; i++)
+    {
+        printf("%s\n", argv[i]);
+    }
 
     while(1)
     {

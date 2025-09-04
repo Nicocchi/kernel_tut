@@ -179,6 +179,8 @@ user_programs:
 	cd $(USER_PROGRAMS_DIR)/shell && $(MAKE) all
 
 user_programs_clean:
+	cd $(USER_PROGRAMS_DIR)/stdlib && $(MAKE) clean
+	cd $(USER_PROGRAMS_DIR)/shell && $(MAKE) clean
 	cd $(USER_PROGRAMS_DIR)/blank && $(MAKE) clean
 
 clean: user_programs_clean

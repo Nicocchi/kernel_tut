@@ -8,6 +8,8 @@ global pandora_putchar:function
 global pandora_malloc:function
 global pandora_free:function
 global pandora_process_load_start:function
+global pandora_process_get_arguments:function
+global pandora_system:function
 
 ; void print(const char* message)
 print:
@@ -71,6 +73,30 @@ pandora_process_load_start:
     mov ebp, esp
     mov eax, 6
     push dword[ebp + 8] ; Variable filename
+    int 0x80
+    add esp, 4
+    pop ebp
+    ret
+
+; int pandora_system(struct command_argument* arguments)
+; Invokes a system command based on arguments
+pandora_system:
+    push ebp
+    mov ebp, esp
+    mov eax, 7
+    push dword[ebp + 8] ; Variable arguments
+    int 0x80
+    add esp, 4
+    pop ebp
+    ret
+
+; void pandora_process_get_arguments(struct process_arguments* arguments)
+; Gets the process arguments
+pandora_process_get_arguments:
+    push ebp
+    mov ebp, esp
+    mov eax, 8
+    push dword[ebp + 8] ; Variable arguments
     int 0x80
     add esp, 4
     pop ebp
