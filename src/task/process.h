@@ -11,12 +11,18 @@
 #define PROCESS_FILE_TYPE_BINARY 1
 typedef unsigned char PROCESS_FILE_TYPE;
 
+struct process_allocation
+{
+    void* ptr;
+    size_t size;
+};
+
 struct process
 {
     uint16_t id;
     char filename[PANDORA_MAX_PATH];
     struct task* task; // Main process task
-    void* allocations[PANDORA_MAX_PROGRAM_ALLOCATIONS]; // The memory (malloc) allocations of the process
+    struct process_allocation allocations[PANDORA_MAX_PROGRAM_ALLOCATIONS]; // The memory (malloc) allocations of the process
 
     PROCESS_FILE_TYPE filetype;
     union
