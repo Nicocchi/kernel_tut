@@ -12,7 +12,7 @@ TARGET_CC_FLAGS := -g -falign-jumps -falign-functions -falign-labels -falign-loo
 				-finline-functions -Wno-unused-function -fno-builtin -Werror -Wno-unused-label -Wno-cpp -Wno-unused-parameter -nostdlib \
 				-nostartfiles -nodefaultlibs -Wall -O0 -Iinc
 
-FILES := $(BUILD_DIR)/start.o $(BUILD_DIR)/pandora.o $(BUILD_DIR)/stdlib.o $(BUILD_DIR)/stdio.o
+FILES := $(BUILD_DIR)/start.o $(BUILD_DIR)/pandora.asm.o $(BUILD_DIR)/stdlib.o $(BUILD_DIR)/stdio.o $(BUILD_DIR)/pandora.o
 INCLUDES := -I./src
 
 all: clean folders start
@@ -22,7 +22,8 @@ all: clean folders start
 
 start:
 	$(TARGET_ASM) -f elf -g $(SRC_DIR)/start.asm -o $(BUILD_DIR)/start.o
-	$(TARGET_ASM) -f elf -g $(SRC_DIR)/pandora.asm -o $(BUILD_DIR)/pandora.o
+	$(TARGET_ASM) -f elf -g $(SRC_DIR)/pandora.asm -o $(BUILD_DIR)/pandora.asm.o
+	$(TARGET_CC) $(INCLUDES) $(TARGET_CC_FLAGS) -std=gnu99 -c $(SRC_DIR)/pandora.c -o $(BUILD_DIR)/pandora.o
 	$(TARGET_CC) $(INCLUDES) $(TARGET_CC_FLAGS) -std=gnu99 -c $(SRC_DIR)/stdlib.c -o $(BUILD_DIR)/stdlib.o
 	$(TARGET_CC) $(INCLUDES) $(TARGET_CC_FLAGS) -std=gnu99 -c $(SRC_DIR)/stdio.c -o $(BUILD_DIR)/stdio.o
 

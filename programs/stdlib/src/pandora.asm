@@ -3,7 +3,7 @@
 
 section .asm
 global print:function
-global getkey:function
+global pandora_getkey:function
 global pandora_putchar:function
 global pandora_malloc:function
 global pandora_free:function
@@ -20,7 +20,7 @@ print:
     ret
 
 ; int getkey()
-getkey:
+pandora_getkey:
     push ebp
     mov ebp, esp
     mov eax, 2

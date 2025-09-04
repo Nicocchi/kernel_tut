@@ -10,12 +10,13 @@ int main(int argc, char** argv)
     void* ptr = malloc(512);
     free(ptr);
 
+    char buf[1024];
+    pandora_terminal_readline(buf, sizeof(buf), true);
+    print(buf);
+
     while(1)
     {
-        if (getkey() != 0)
-        {
-            print("key was pressed\n");
-        }
+        
     }
 
     return 0;
