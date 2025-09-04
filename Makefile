@@ -17,7 +17,7 @@ BUILD_FILES := $(BUILD_DIR)/kernel.asm.o $(BUILD_DIR)/kernel.o $(BUILD_DIR)/idt/
 			$(BUILD_DIR)/memory/paging/paging.o $(BUILD_DIR)/disk/disk.o $(BUILD_DIR)/string/string.o $(BUILD_DIR)/fs/pparser.o $(BUILD_DIR)/disk/streamer.o \
 			$(BUILD_DIR)/fs/fat/fat16.o $(BUILD_DIR)/fs/file.o $(BUILD_DIR)/gdt/gdt.asm.o $(BUILD_DIR)/gdt/gdt.o $(BUILD_DIR)/task/tss.asm.o \
 			$(BUILD_DIR)/task/task.o $(BUILD_DIR)/task/task.asm.o $(BUILD_DIR)/task/process.o $(BUILD_DIR)/isr80h/isr80h.o $(BUILD_DIR)/isr80h/misc.o \
-			$(BUILD_DIR)/isr80h/io.o $(BUILD_DIR)/isr80h/heap.o $(BUILD_DIR)/keyboard/keyboard.o $(BUILD_DIR)/keyboard/pso2.o \
+			$(BUILD_DIR)/isr80h/io.o $(BUILD_DIR)/isr80h/heap.o $(BUILD_DIR)/isr80h/process.o $(BUILD_DIR)/keyboard/keyboard.o $(BUILD_DIR)/keyboard/pso2.o \
 			$(BUILD_DIR)/loader/formats/elf_loader.o $(BUILD_DIR)/loader/formats/elf.o
 
 INCLUDES := -I./$(SRC_DIR) -I./$(SRC_DIR)/disk -I./$(SRC_DIR)/fs -I./$(SRC_DIR)/fs/fat -I./$(SRC_DIR)/idt -I./$(SRC_DIR)/memory -I./$(SRC_DIR)/io \
@@ -32,10 +32,11 @@ write:
 	dd if=$(BIN_DIR)/boot.bin >> $(BIN_DIR)/$(TARGET).bin
 	dd if=$(BIN_DIR)/kernel.bin >> $(BIN_DIR)/$(TARGET).bin
 	dd if=/dev/zero bs=1048576 count=16 >> $(BIN_DIR)/$(TARGET).bin
-	sudo mount -t vfat $(BIN_DIR)/$(TARGET).bin /mnt/d
 	# Copy a file over
+	sudo mount -t vfat $(BIN_DIR)/$(TARGET).bin /mnt/d
 	sudo cp ./nico.txt /mnt/d
 	sudo cp ./$(USER_PROGRAMS_DIR)/blank/bin/blank.elf /mnt/d
+	sudo cp ./$(USER_PROGRAMS_DIR)/shell/bin/shell.elf /mnt/d
 	sudo umount /mnt/d
 
 bootloader:
@@ -83,6 +84,9 @@ kernel:
 
 	@printf "\e[0;32m\033[1m\n ISR80H HEAP... \n\n\033[0m\e[0;37m"
 	$(TARGET_CC) $(INCLUDES) $(TARGET_CC_FLAGS) -std=gnu99 -c $(SRC_DIR)/isr80h/heap.c -o $(BUILD_DIR)/isr80h/heap.o
+
+	@printf "\e[0;32m\033[1m\n ISR80H PROCESS... \n\n\033[0m\e[0;37m"
+	$(TARGET_CC) $(INCLUDES) $(TARGET_CC_FLAGS) -std=gnu99 -c $(SRC_DIR)/isr80h/process.c -o $(BUILD_DIR)/isr80h/process.o
 	
 	@printf "\e[0;32m\033[1m\n io... \n\n\033[0m\e[0;37m"
 	$(TARGET_ASM) -f elf -g $(SRC_DIR)/io/io.asm -o $(BUILD_DIR)/io/io.asm.o
@@ -172,6 +176,7 @@ user_programs:
 	@printf "\e[0;32m\033[1m\n Compiling programs... \n\n\033[0m\e[0;37m"
 	cd $(USER_PROGRAMS_DIR)/stdlib && $(MAKE) all
 	cd $(USER_PROGRAMS_DIR)/blank && $(MAKE) all
+	cd $(USER_PROGRAMS_DIR)/shell && $(MAKE) all
 
 user_programs_clean:
 	cd $(USER_PROGRAMS_DIR)/blank && $(MAKE) clean

@@ -6,11 +6,13 @@
 
 void print(const char* message);
 int pandora_getkey();
+
 void* pandora_malloc(size_t size);
 void* pandora_free(void* ptr);
 int pandora_putchar(int c);
 
 int pandora_getkeyblock();
 void pandora_terminal_readline(char* out, int max, bool output_while_typing);
+void* pandora_process_load_start(const char* filename);
 
 #endif
