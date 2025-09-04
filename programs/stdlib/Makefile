@@ -12,7 +12,7 @@ TARGET_CC_FLAGS := -g -falign-jumps -falign-functions -falign-labels -falign-loo
 				-finline-functions -Wno-unused-function -fno-builtin -Werror -Wno-unused-label -Wno-cpp -Wno-unused-parameter -nostdlib \
 				-nostartfiles -nodefaultlibs -Wall -O0 -Iinc
 
-FILES := $(BUILD_DIR)/start.o $(BUILD_DIR)/pandora.asm.o $(BUILD_DIR)/stdlib.o $(BUILD_DIR)/stdio.o $(BUILD_DIR)/pandora.o
+FILES := $(BUILD_DIR)/start.o $(BUILD_DIR)/pandora.asm.o $(BUILD_DIR)/stdlib.o $(BUILD_DIR)/stdio.o $(BUILD_DIR)/pandora.o $(BUILD_DIR)/string.o $(BUILD_DIR)/memory.o
 INCLUDES := -I./src
 
 all: clean folders start
@@ -26,6 +26,8 @@ start:
 	$(TARGET_CC) $(INCLUDES) $(TARGET_CC_FLAGS) -std=gnu99 -c $(SRC_DIR)/pandora.c -o $(BUILD_DIR)/pandora.o
 	$(TARGET_CC) $(INCLUDES) $(TARGET_CC_FLAGS) -std=gnu99 -c $(SRC_DIR)/stdlib.c -o $(BUILD_DIR)/stdlib.o
 	$(TARGET_CC) $(INCLUDES) $(TARGET_CC_FLAGS) -std=gnu99 -c $(SRC_DIR)/stdio.c -o $(BUILD_DIR)/stdio.o
+	$(TARGET_CC) $(INCLUDES) $(TARGET_CC_FLAGS) -std=gnu99 -c $(SRC_DIR)/string.c -o $(BUILD_DIR)/string.o
+	$(TARGET_CC) $(INCLUDES) $(TARGET_CC_FLAGS) -std=gnu99 -c $(SRC_DIR)/memory.c -o $(BUILD_DIR)/memory.o
 
 clean:
 	@printf "\e[0;32m\033[1m\n Clearing files before building... \n\n\033[0m\e[0;37m"
