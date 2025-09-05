@@ -17,9 +17,10 @@ task_return:
     mov ebx, [ebp + 4]      ; Access the structure passed
     push dword [ebx + 44]   ; Push the data/stack selector
     push dword [ebx + 40]   ; Push the stack pointer
-    pushf                   ; Push the flags
-    pop eax
-    or eax, 0x200
+    
+    ; Push the flags
+    mov eax, [ebx + 36]
+    or eax, 0x200           ; Interrupt enable flag set
     push eax
 
     push dword [ebx + 32]   ; Push the code segment
@@ -49,7 +50,7 @@ restore_general_purpose_registers:
     mov ecx, [ebx + 20]
     mov eax, [ebx + 24]
     mov ebx, [ebx + 12]
-    pop ebp
+    add esp, 4
     ret
 
 ; Sets all the registers back to userland

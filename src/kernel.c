@@ -137,7 +137,7 @@ void kernel_main()
     // Load the GDT
     memset(gdt_real, 0x00, sizeof(gdt_real));
     gdt_structured_to_gdt(gdt_real, gdt_structured, PANDORA_TOTAL_GDT_SEGMENTS);
-    gdt_load(gdt_real, sizeof(gdt_real));
+    gdt_load(gdt_real, sizeof(gdt_real) - 1);
     print("GDT loaded...\n");
     
     // Initialize the heap

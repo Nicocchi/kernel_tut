@@ -8,6 +8,11 @@ int main(int argc, char** argv)
     while(1)
     {
         printf("%s\n", argv[0]);
+        // print(argv[0]);
+        // for (int i = 0; i < 1000000; i++)
+        // {
+
+        // }
     }
 
     // Exception handling test

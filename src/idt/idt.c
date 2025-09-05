@@ -104,12 +104,12 @@ void isr80h_register_command(int command_id, ISR80H_COMMAND command)
 {
     if (command_id < 0 || command_id >= PANDORA_MAX_ISR80H_COMMANDS)
     {
-    panic("isr80h_register_command: Command is out of bounds.\n");
+        panic("isr80h_register_command: Command is out of bounds.\n");
     }
 
     if (isr80h_commands[command_id])
     {
-    panic("isr80h_register_command: Attempting to overwrite an existing command.\n");
+        panic("isr80h_register_command: Attempting to overwrite an existing command.\n");
     }
 
     isr80h_commands[command_id] = command;

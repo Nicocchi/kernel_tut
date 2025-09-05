@@ -43,9 +43,11 @@ step2:
     mov ax, 0x00
     mov ds, ax
     mov es, ax
+    mov ss, ax          ; Set the stack segment now to 0
+    mov gs, ax
+    mov fs, ax
 
     ; Stack segment
-    mov ss, ax          ; Set the stack segment now to 0
     mov sp, 0x7C00      ; Stack pointer
     sti                 ; Enable interrupts
 
@@ -93,9 +95,23 @@ gdt_descriptor:
 ; Load kernel into memory and jump to it
 [BITS 32]
 load32:
+    mov ax, DATA_SEG
+    mov es, ax
+    mov ds, ax
+    mov ss, ax
+    mov fs, ax
+    mov gs, ax
+    
+    ; Enable the A20 line
+    in al, 0x92
+    or al, 2
+    out 0x92, al
+
+    ; For the loading
     mov eax, 1
     mov ecx, 100
     mov edi, 0x0100000  ; 1M in memory
+
     call ata_lba_read
     jmp CODE_SEG:0x0100000
 
