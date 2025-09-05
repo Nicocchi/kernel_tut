@@ -7,6 +7,8 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#define PS2_KEYBOARD_CAPSLOCK 0x3A
+
 int pso2_keyboard_init();
 
 // https://wiki.osdev.org/PS/2_Keyboard
@@ -36,6 +38,8 @@ int pso2_keyboard_init()
 {
     idt_register_interrupt_cb(ISR_KEYBOARD_INTERRUPT, pso2_keyboard_handle_interrupt);
 
+    keyboard_set_capslock(&pso2_keyboard, KEYBOARD_CAPS_LOCK_OFF);
+
     // https://wiki.osdev.org/I8042_PS/2_Controller#PS/2_Controller_IO_Ports
     // https://wiki.osdev.org/I8042_PS/2_Controller#PS/2_Controller_Commands
     outb(PS2_PORT, PS2_CMD_ENABLE_FIRST_PORT); // Write port/Command register -> Enable first PS/2 port
@@ -51,6 +55,13 @@ uint8_t pso2_keyboard_scancode_to_char(uint8_t scancode)
     }
 
     char c = keyboard_scan_set_one[scancode];
+    if (keyboard_get_capslock(&pso2_keyboard) == KEYBOARD_CAPS_LOCK_OFF)
+    {
+        if (c >= 'A' && c <= 'Z')
+        {
+            c += 32;
+        }
+    }
     return c;
 }
 
@@ -64,6 +75,12 @@ void pso2_keyboard_handle_interrupt()
     if (scancode & PS2_KEY_RELEASED)
     {
         return;
+    }
+
+    if (scancode == PS2_KEYBOARD_CAPSLOCK)
+    {
+        KEYBOARD_CAPS_LOCK_STATE old_state = keyboard_get_capslock(&pso2_keyboard);
+        keyboard_set_capslock(&pso2_keyboard, old_state == KEYBOARD_CAPS_LOCK_ON ? KEYBOARD_CAPS_LOCK_OFF : KEYBOARD_CAPS_LOCK_ON);
     }
 
     uint8_t c = pso2_keyboard_scancode_to_char(scancode);
