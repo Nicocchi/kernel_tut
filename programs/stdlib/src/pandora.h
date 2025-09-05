@@ -31,5 +31,6 @@ struct command_argument* pandora_parse_command(const char* command, int max);
 void pandora_process_get_arguments(struct process_arguments* arguments);
 int pandora_system(struct command_argument* arguments);
 int pandora_system_run(const char* command);
+void pandora_process_exit();
 
 #endif

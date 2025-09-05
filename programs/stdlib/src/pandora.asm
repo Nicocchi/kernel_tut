@@ -10,6 +10,7 @@ global pandora_free:function
 global pandora_process_load_start:function
 global pandora_process_get_arguments:function
 global pandora_system:function
+global pandora_process_exit:function
 
 ; void print(const char* message)
 print:
@@ -99,5 +100,14 @@ pandora_process_get_arguments:
     push dword[ebp + 8] ; Variable arguments
     int 0x80
     add esp, 4
+    pop ebp
+    ret
+
+; void pandora_process_exit()
+pandora_process_exit:
+    push ebp
+    mov ebp, esp
+    mov eax, 9
+    int 0x80
     pop ebp
     ret
