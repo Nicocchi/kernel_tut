@@ -184,7 +184,7 @@ void kernel_main()
     print("keyboard initialized...\n\n");
 
     struct process* process = 0;
-    int res = process_load_switch("0:/shell.elf", &process);
+    int res = process_load_switch("0:/blank.elf", &process);
     if (res != PANDORAOS_ALL_OK)
     {
         panic("kernel: Failed to load shell.elf");
@@ -194,6 +194,19 @@ void kernel_main()
     strcpy(argument.argument, "Testing!");
     argument.next = 0x00;
     process_inject_arguments(process, &argument);
+
+
+    
+    res = process_load_switch("0:/blank.elf", &process);
+    if (res != PANDORAOS_ALL_OK)
+    {
+        panic("kernel: Failed to load shell.elf");
+    }
+
+    strcpy(argument.argument, "Abc!");
+    argument.next = 0x00;
+    process_inject_arguments(process, &argument);
+
     task_run_first_task();
     
     // enable_interrupts();
